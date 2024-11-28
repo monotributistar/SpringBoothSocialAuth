@@ -37,7 +37,10 @@ const LoginButtons = () => {
   if (loading) {
     return (
       <div className="flex justify-center">
-        <span className="loading loading-spinner loading-lg"></span>
+        <span
+          className="loading loading-spinner loading-lg"
+          data-testid="loading-spinner"
+        ></span>
       </div>
     );
   }
