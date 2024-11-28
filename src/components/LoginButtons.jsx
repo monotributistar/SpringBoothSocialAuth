@@ -1,11 +1,69 @@
-import { handleLogin } from '../config/auth.config';
+import { useState, useEffect } from 'react';
+import { authService } from '../services/api.service';
 
 const LoginButtons = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const userData = await authService.getUserInfo();
+        setUser(userData);
+      } catch (error) {
+        console.error('Error checking user status:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUser();
+  }, []);
+
+  const handleLogin = (provider) => {
+    authService.initiateOAuth(provider);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
+  if (user) {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold">¡Bienvenido!</h3>
+          <p className="text-sm">{user.username}</p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="btn btn-outline btn-error"
+        >
+          Cerrar Sesión
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 w-full max-w-xs">
       <button
         onClick={() => handleLogin('github')}
-        className="btn btn-outline gap-2"
+        className="btn btn-primary hover:btn-primary-focus gap-2"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -20,7 +78,7 @@ const LoginButtons = () => {
 
       <button
         onClick={() => handleLogin('google')}
-        className="btn btn-outline gap-2"
+        className="btn btn-secondary hover:btn-secondary-focus gap-2"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
